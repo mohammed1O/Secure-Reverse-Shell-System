@@ -1,1 +1,72 @@
 # Secure-Reverse-Shell-System
+
+# Secure Reverse Shell with SSL and HMAC Authentication
+
+## Introduction
+
+This project develops a secure reverse shell application using SSL/TLS protocols to encrypt the communication between the client and the server, along with HMAC (Hash-based Message Authentication Code) for authenticating the client. It provides a strong authentication mechanism using passwords and RSA public/private keys.
+
+## Key Features
+
+- **Automatic RSA Key Generation**: RSA keys are generated to secure the communication between the client and the server.
+- **SSL Certificate Creation**: OpenSSL is used to create an SSL certificate to secure the connection.
+- **Authentication Protection using HMAC**: HMAC is used to verify the integrity of the communication between the client and server using a password.
+- **Secure Client/Server Code**: The client connects to the server, sends commands, and executes them while the server verifies the connection before executing the commands.
+
+## Requirements
+
+- Python 3.x
+- `pycryptodome` library (for handling RSA encryption).
+- `ssl` library for handling SSL security layer.
+- OpenSSL for generating certificates.
+
+## Usage
+
+### Setting Up the Server
+
+1. Specify the server's IP address and the port number you want to use.
+2. Set the password that will be used for authentication.
+3. When running the server, the program will automatically generate the necessary keys and certificate.
+
+```bash
+python server.py
+Setting Up the Client
+You can generate the client code using the server, which the client will use to connect to the server using SSL certificate and authentication key.
+
+bash
+Copy
+python -c "import base64; exec(base64.b64decode('<encoded client code>'))"
+Executing Commands
+Once the connection between the client and server is established, you can send commands via the server's command-line interface. The commands will be executed on the server, and the results will be sent back to the client.
+
+Supported Commands
+exit: Ends the connection with the server.
+
+Any other command will be executed on the server, and the result will be sent to the client.
+
+Code Explanation
+server.py
+Acts as a server that handles the SSL/TLS connection and authenticates the client using HMAC. It processes the client's commands and executes them on the server.
+
+handle_client(client_socket, password): Manages the client connection and authenticates the client using HMAC.
+
+start_server(ip, port, password): Starts the server and listens for incoming connections from clients.
+
+keys__check(ip_add, password): Generates the necessary keys and certificates.
+
+client_code
+The client code connects to the server, sends commands, and verifies the server’s identity via SSL and HMAC.
+
+Notes
+Ensure that the server is running properly before trying to connect to it from the client.
+
+The password should be strong to maintain authentication security.
+
+An SSL certificate is used to ensure secure communication between the client and the server.
+
+Make sure OpenSSL is installed on your system to generate the certificates correctly.
+
+Customization
+You can customize the code to specify different private and public keys or even use different runtime environments.
+
+You can also modify the authentication method or add additional security measures
