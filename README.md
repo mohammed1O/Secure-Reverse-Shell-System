@@ -17,8 +17,8 @@ This project develops a secure reverse shell application using SSL/TLS protocols
 
 - Python 3.x
 - `pycryptodome` library (for handling RSA encryption).
-- `ssl` library for handling SSL security layer.
-- OpenSSL for generating certificates.
+- 
+- opensessl must be installed on the system to generate the self-signed certificate.
 
 ## Usage
 
@@ -31,10 +31,9 @@ This project develops a secure reverse shell application using SSL/TLS protocols
 ```bash
 python server.py
 Setting Up the Client
-You can generate the client code using the server, which the client will use to connect to the server using SSL certificate and authentication key.
+ generate the client code using the server, which the client will use to connect to the server using SSL certificate and authentication key.
 
-bash
-Copy
+
 python -c "import base64; exec(base64.b64decode('<encoded client code>'))"
 Executing Commands
 Once the connection between the client and server is established, you can send commands via the server's command-line interface. The commands will be executed on the server, and the results will be sent back to the client.
